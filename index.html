@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAMP – Royal Palm Beach Pines Natural Area</title>
+<link rel="stylesheet" href="css/tamp.css">
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="logo">
+    <h1>🌿 TAMP</h1>
+    <p>Trail Asset Management</p>
+  </div>
+  <nav>
+    <a class="active" onclick="showPage('dashboard')" data-page="dashboard"><span class="icon">📊</span> Dashboard</a>
+    <a onclick="showPage('summary')" data-page="summary"><span class="icon">📑</span> Summary</a>
+    <a onclick="showPage('alltrails')" data-page="alltrails"><span class="icon">🌐</span> All Trails</a>
+    <a onclick="showPage('inventory')" data-page="inventory"><span class="icon">📋</span> Inventory</a>
+    <a onclick="showPage('gismap')" data-page="gismap"><span class="icon">🗺️</span> GIS Map</a>
+    <a onclick="showPage('workorders')" data-page="workorders"><span class="icon">🔧</span> Work Orders</a>
+    <a onclick="showPage('inspection')" data-page="inspection"><span class="icon">📝</span> Inspection Form</a>
+    <a onclick="showPage('scoreedit')" data-page="scoreedit"><span class="icon">✏️</span> Score / Edit</a>
+    <a onclick="showPage('priority')" data-page="priority"><span class="icon">⚡</span> Priority Matrix</a>
+    <a onclick="showPage('annualplan')" data-page="annualplan"><span class="icon">📅</span> Annual Plan</a>
+    <a onclick="showPage('report')" data-page="report"><span class="icon">📄</span> Inspection Report</a>
+    <a onclick="showPage('sites')" data-page="sites"><span class="icon">🏞️</span> Sites &amp; Trails</a>
+  </nav>
+  <div class="trail-badge">
+    <strong id="trail-badge-name">Torres Trail (TOR)</strong>
+    <span id="trail-badge-site">Royal Palm Beach Pines Natural Area</span>
+  </div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <h2 id="page-title">Dashboard</h2>
+    <span class="meta" id="page-meta">Royal Palm Beach Pines Natural Area · Torres Trail</span>
+  </div>
+  <div id="content">
+
+    <!-- SUMMARY -->
+    <div id="page-summary" class="page">
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">Operational Summary</div>
+          <div class="page-sub" id="summary-sub">Trail Asset Management Platform · Project Close-out View</div>
+        </div>
+      </div>
+
+      <!-- Hero banner -->
+      <div id="summary-hero" style="
+        background:linear-gradient(135deg,#1b4332 0%,#2d6a4f 60%,#3D6B50 100%);
+        border-radius:12px;padding:2rem 2.25rem;margin-bottom:1.25rem;
+        display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.55);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Trail Asset Management Platform</div>
+          <div id="summary-title" style="font-size:26px;font-weight:800;color:#fff;line-height:1.2">Torres Trail Renewal</div>
+          <div id="summary-meta" style="font-size:13px;color:rgba(255,255,255,0.65);margin-top:4px"></div>
+        </div>
+        <div id="summary-status-badge" style="
+          background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);
+          border-radius:12px;padding:0.75rem 1.25rem;text-align:center;min-width:160px">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Expansion Status</div>
+          <div id="summary-expansion" style="font-size:15px;font-weight:700;color:#f4a261">—</div>
+        </div>
+      </div>
+
+      <!-- Primary metric grid -->
+      <div id="summary-metrics" style="
+        display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+        gap:0.875rem;margin-bottom:1.25rem"></div>
+
+      <!-- Scope breakdown + progress rings -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
+        <div class="card">
+          <div class="card-title">Work Scope Breakdown</div>
+          <div id="summary-scope"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Completion Progress</div>
+          <div id="summary-progress"></div>
+        </div>
+      </div>
+
+      <!-- Footnote -->
+      <div style="margin-top:2rem;padding-top:0.5rem;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;text-align:center;letter-spacing:0.01em">
+        Volunteers, Reports, and Expansion Status can be entered manually. All other metrics are computed live from marker data.
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="stat-grid" id="stat-grid"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+        <div class="card">
+          <div class="card-title">Completion Progress</div>
+          <div style="display:flex;align-items:center;gap:18px;margin-top:10px;">
+            <div class="prog-ring"><canvas id="prog-canvas" width="90" height="90"></canvas><span id="prog-pct">0%</span></div>
+            <div style="flex:1;" id="completion-breakdown"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Action Summary</div>
+          <div id="action-summary" style="margin-top:10px;"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent Activity — Top Priority Markers</div>
+        <div class="tbl-wrap" style="margin-top:10px;"><table id="priority-table"><thead><tr><th>Marker</th><th>Condition</th><th>Action</th><th>Status</th><th>Overall</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div id="page-inventory" class="page">
+      <div class="filter-bar">
+        <input type="text" id="inv-search" placeholder="Search marker ID or notes…" oninput="filterInventory()">
+        <select id="inv-filter-cond" onchange="filterInventory()">
+          <option value="">All Conditions</option>
+          <option value="Good">Good</option>
+          <option value="Fair">Fair</option>
+          <option value="Poor">Poor</option>
+          <option value="Critical">Critical</option>
+        </select>
+        <select id="inv-filter-action" onchange="filterInventory()">
+          <option value="">All Actions</option>
+          <option value="Paint">Paint</option>
+          <option value="Replace">Replace</option>
+          <option value="Install New">Install New</option>
+          <option value="No Action">No Action</option>
+        </select>
+        <select id="inv-filter-status" onchange="filterInventory()">
+          <option value="">All Statuses</option>
+          <option value="Completed">Completed</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Not Started">Not Started</option>
+        </select>
+        <button class="btn btn-sm" style="background:#2d6a4f;color:#fff;border-color:#2d6a4f;" onclick="showAddMarkerModal()">＋ Add Marker</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportJSON()">⬇ Export JSON</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('import-json-input').click()">⬆ Import JSON</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('import-csv-input').click()">⬆ Import CSV</button>
+        <button class="btn btn-sm" style="background:#3a86ff;color:#fff;border-color:#3a86ff;" onclick="document.getElementById('import-trail-csv-input').click()">⬆ Import Trail CSV</button>
+        <input type="file" id="import-json-input" accept=".json" style="display:none" onchange="importJSON(this)">
+        <input type="file" id="import-csv-input" accept=".csv" style="display:none" onchange="importCSV(this)">
+        <input type="file" id="import-trail-csv-input" accept=".csv" style="display:none" onchange="importTrailCSV(this)">
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="tbl-wrap">
+          <table id="inv-table">
+            <thead><tr>
+              <th>Marker</th><th>Type</th><th>Condition</th><th>Paint</th>
+              <th>Struct</th><th>Paint Sc</th><th>Vis</th><th>Overall</th>
+              <th>Action</th><th>Status</th><th>Photo</th><th></th>
+            </tr></thead>
+            <tbody id="inv-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:0.8rem;color:var(--text-muted);" id="inv-count"></div>
+    </div>
+
+    <!-- GIS MAP -->
+    <div id="page-gismap" class="page">
+
+      <!-- Tab bar -->
+      <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border);">
+        <button id="maptab-plot-btn" onclick="switchMapTab('plot')"
+          style="padding:8px 20px;border:none;background:none;font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:3px solid var(--primary);color:var(--primary);margin-bottom:-2px;">
+          📍 Coordinate Plot
+        </button>
+        <button id="maptab-geo-btn" onclick="switchMapTab('geo')"
+          style="padding:8px 20px;border:none;background:none;font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;color:var(--text-muted);margin-bottom:-2px;">
+          🗺 Trail Map
+        </button>
+      </div>
+
+      <!-- TAB: Coordinate Plot -->
+      <div id="maptab-plot">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="filter-bar" style="margin-bottom:0;flex-wrap:wrap;gap:8px;">
+            <select id="map-filter" onchange="renderMap()">
+              <option value="">All Markers</option>
+              <option value="both">⊕ Both Trails</option>
+              <option value="Good">Good Only</option>
+              <option value="Fair">Fair Only</option>
+              <option value="Critical">Critical Only</option>
+              <option value="Paint">Action: Paint</option>
+              <option value="Install New">Action: Install New</option>
+            </select>
+            <label style="font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+              <input type="checkbox" id="map-labels" onchange="renderMap()" checked> Show IDs
+            </label>
+            <span style="font-size:0.8rem;color:var(--text-muted);" id="map-count"></span>
+            <button class="btn btn-sm btn-outline" onclick="downloadMap()" style="margin-left:auto;" title="Download map as PNG">⬇ Download PNG</button>
+          </div>
+        </div>
+        <div id="map-container" style="height:520px;">
+          <canvas id="map-canvas"></canvas>
+          <div class="map-legend">
+            <h4>Legend</h4>
+            <div class="legend-item"><div class="legend-dot" style="background:#2d6a4f;"></div> Good</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f4a261;"></div> Fair</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e76f51;"></div> Poor</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#c1121f;"></div> Critical</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#3a86ff;"></div> New Install</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Geographic Trail Map -->
+      <div id="maptab-geo" style="display:none;">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="filter-bar" style="margin-bottom:0;flex-wrap:wrap;gap:8px;align-items:center;">
+            <span style="font-size:0.85rem;font-weight:600;color:var(--text);">Geographic Trail Map</span>
+            <span style="font-size:0.8rem;color:var(--text-muted);">Upload a scanned or downloaded trail map image (JPG, PNG)</span>
+            <div style="display:flex;gap:6px;margin-left:auto;">
+              <button class="btn btn-sm" style="background:var(--primary);color:#fff;border-color:var(--primary);" onclick="document.getElementById('map-geo-input').click()">⬆ Upload Map Image</button>
+              <button class="btn btn-sm btn-outline" id="map-geo-clear-btn" onclick="clearGeoMap()" style="display:none;">✕ Remove</button>
+              <button class="btn btn-sm btn-outline" id="map-geo-download-btn" onclick="downloadGeoMap()" style="display:none;">⬇ Download PNG</button>
+            </div>
+            <input type="file" id="map-geo-input" accept="image/*" style="display:none" onchange="uploadGeoMap(this)">
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="map-geo-empty" class="card" style="text-align:center;padding:60px 20px;">
+          <div style="font-size:2.5rem;margin-bottom:12px;">🗺</div>
+          <div style="font-size:1rem;font-weight:600;margin-bottom:8px;color:var(--text);">No trail map uploaded yet</div>
+          <div style="font-size:0.83rem;color:var(--text-muted);margin-bottom:20px;max-width:400px;margin-inline:auto;">
+            Upload a georeferenced map image, a park service PDF screenshot, or any trail map image for this trail.
+            It will be saved and persist across sessions.
+          </div>
+          <button class="btn btn-primary" onclick="document.getElementById('map-geo-input').click()">⬆ Upload Map Image</button>
+        </div>
+
+        <!-- Map canvas with marker overlay -->
+        <div id="map-geo-container" style="display:none;position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+          <canvas id="map-geo-canvas" style="display:block;width:100%;height:auto;"></canvas>
+          <div style="position:absolute;bottom:10px;right:10px;display:flex;gap:6px;">
+            <label style="background:rgba(255,255,255,0.9);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:0.75rem;display:flex;align-items:center;gap:5px;cursor:pointer;">
+              <input type="checkbox" id="geo-show-markers" onchange="renderGeoMap()" checked> Show markers
+            </label>
+          </div>
+        </div>
+        <div id="map-geo-info" style="display:none;margin-top:8px;font-size:0.78rem;color:var(--text-muted);"></div>
+      </div>
+
+    </div>
+
+    <!-- INSPECTION FORM -->
+    <div id="page-inspection" class="page">
+      <div class="card" style="max-width:680px;">
+        <div class="section-header"><h3>New Inspection Entry</h3></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Marker ID</label>
+            <select id="form-marker" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;">
+              <option value="">— Select Marker —</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Inspection Date</label>
+            <input type="date" id="form-date" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;">
+          </div>
+          <div>
+            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Inspector Name</label>
+            <input type="text" id="form-inspector" placeholder="Full name" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;">
+          </div>
+          <div>
+            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Marker Type</label>
+            <select id="form-type" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;">
+              <option>Wood Post</option><option>Metal Post</option><option>Dual (Metal + Wood)</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:8px;font-weight:600;">STRUCTURAL CONDITION</label>
+          <div id="radio-structural" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:8px;font-weight:600;">PAINT CONDITION</label>
+          <div id="radio-paint" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:8px;font-weight:600;">VISIBILITY</label>
+          <div id="radio-visibility" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:8px;font-weight:600;">RECOMMENDED ACTION</label>
+          <div id="radio-action" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Notes / Observations</label>
+          <textarea id="form-notes" rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;resize:vertical;" placeholder="Any additional observations…"></textarea>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px;">Before Photo URL</label>
+          <input type="url" id="form-photo" placeholder="https://photos.google.com/…" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;">
+        </div>
+        <button class="btn btn-primary" onclick="submitInspection()">💾 Save Inspection</button>
+        <div id="form-msg" style="margin-top:10px;font-size:0.82rem;color:var(--good);"></div>
+      </div>
+    </div>
+
+    <!-- SCORE / EDIT -->
+    <div id="page-scoreedit" class="page">
+      <div class="filter-bar" style="margin-bottom:16px;">
+        <input type="text" id="se-search" placeholder="Search marker ID…" oninput="filterScoreEdit()" style="width:200px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.82rem;">
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="tbl-wrap">
+          <table id="se-table">
+            <thead><tr>
+              <th>Marker</th><th>Condition</th><th>Paint Label</th>
+              <th>Struct</th><th>Paint</th><th>Vis</th><th>Overall</th>
+              <th>Action</th><th>Status</th><th>Edit</th>
+            </tr></thead>
+            <tbody id="se-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIORITY MATRIX -->
+    <div id="page-priority" class="page">
+      <div class="card" style="margin-bottom:18px;">
+        <div class="card-title" style="margin-bottom:12px;">Priority Matrix — Overall Score vs Action Type</div>
+        <div id="priority-matrix-content"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px;">Full Priority List</div>
+        <div class="tbl-wrap">
+          <table id="priority-full-table">
+            <thead><tr><th>#</th><th>Marker</th><th>Overall</th><th>Condition</th><th>Action</th><th>Status</th></tr></thead>
+            <tbody id="priority-full-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANNUAL PLAN -->
+    <div id="page-annualplan" class="page">
+      <div class="card" style="margin-bottom:18px;">
+        <h3 id="annual-plan-heading" style="margin-bottom:6px;">Annual Maintenance Plan — Torres Trail</h3>
+        <p id="annual-plan-subhead" style="font-size:0.83rem;color:var(--text-muted);">Royal Palm Beach Pines Natural Area · FY 2025–2026</p>
+      </div>
+      <div id="annual-plan-content"></div>
+    </div>
+
+    <!-- ALL TRAILS OVERVIEW -->
+    <div id="page-alltrails" class="page">
+      <div id="alltrails-content"></div>
+    </div>
+
+    <!-- WORK ORDERS -->
+    <div id="page-workorders" class="page">
+      <div class="section-header">
+        <h3>Work Orders by Action Type</h3>
+        <span class="meta" id="wo-summary"></span>
+      </div>
+      <div id="wo-groups"></div>
+    </div>
+
+    <!-- REPORT -->
+    <div id="page-report" class="page">
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="printReport()">🖨 Print Report</button>
+        <button class="btn btn-outline" onclick="exportHTML()">⬇ Export HTML</button>
+      </div>
+      <div id="report-content"></div>
+    </div>
+
+    <!-- SITES & TRAILS -->
+    <div id="page-sites" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div>
+          <div style="font-size:1.05rem;font-weight:700;">Sites &amp; Trails</div>
+          <div style="font-size:0.78rem;color:var(--text-muted);">Manage sites and trails · edit fields inline</div>
+        </div>
+        <button class="btn" onclick="openAddSiteModal()" style="background:var(--primary);color:#fff;border-color:var(--primary);font-size:0.82rem;">+ Add Site</button>
+      </div>
+      <div class="card" style="margin-bottom:14px;font-size:0.78rem;color:var(--text-muted);">
+        <strong style="color:var(--text);">Loading a new trail's markers in bulk:</strong> add the trail below first, then go to <strong>Inventory</strong> and use <strong>⬆ Import CSV</strong>. Your CSV needs at minimum a "Marker ID" or "ID" column; GPS Lat/Lon and scoring columns are optional.
+      </div>
+      <div id="sites-list"></div>
+    </div>
+
+  </div><!-- end #content -->
+</div><!-- end #main -->
+
+<!-- ADD MARKER MODAL -->
+<div id="add-marker-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:12px;padding:28px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative;">
+    <button onclick="closeAddMarkerModal()" style="position:absolute;top:12px;right:16px;border:none;background:none;font-size:1.3rem;cursor:pointer;color:#999;">✕</button>
+    <h3 style="margin-bottom:18px;font-size:1rem;color:#1b4332;">＋ Add New Marker</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <label style="font-size:0.75rem;color:#6c757d;display:block;margin-bottom:4px;">Marker ID *</label>
+        <input id="am-id" placeholder="e.g. TOR-077" style="width:100%;padding:7px 10px;border:1px solid #dee2e6;border-radius:6px;font-size:0.85rem;">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;color:#6c757d;display:block;margin-bottom:4px;">Marker Type</label>
+        <select id="am-type" style="width:100%;padding:7px 10px;border:1px solid #dee2e6;border-radius:6px;font-size:0.85rem;">
+          <option>Wood Post</option><option>Metal Post</option><option>Dual (Metal + Wood)</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.75rem;color:#6c757d;display:block;margin-bottom:4px;">Existing / New</label>
+        <select id="am-existing" style="width:100%;padding:7px 10px;border:1px solid #dee2e6;border-radius:6px;font-size:0.85rem;">
+          <option>Existing</option><option>New</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.75rem;color:#6c757d;display:block;margin-bottom:4px;">Action</label>
+        <select id="am-action" style="width:100%;padding:7px 10px;border:1px solid #dee2e6;border-radius:6px;font-size:0.85rem;">
+          <option>Paint</option><option>Replace</option><option>Install New</option><option>No Action</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.75rem;color:#6c757d;display:block;margin-bottom:4px;">Latitude</label>
+        <input id="am-lat" type="number" step="any" placeholder="26.7216" style="width:100%;padding:7px 10px;border:1px solid #dee2e6;border-radius:6px;font-size:0.85rem;">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;color:#6c757d;display:block;margin-bottom:4px;">Longitude</label>
+        <input id="am-lng" type="number" step="any" placeholder="-80.2418" style="width:100%;padding:7px 10px;border:1px solid #dee2e6;border-radius:6px;font-size:0.85rem;">
+      </div>
+      <div style="grid-column:1/-1;">
+        <label style="font-size:0.75rem;color:#6c757d;display:block;margin-bottom:4px;">Notes</label>
+        <input id="am-notes" placeholder="Optional notes" style="width:100%;padding:7px 10px;border:1px solid #dee2e6;border-radius:6px;font-size:0.85rem;">
+      </div>
+      <div style="grid-column:1/-1;">
+        <label style="font-size:0.75rem;color:#6c757d;display:block;margin-bottom:4px;">Photo URL</label>
+        <input id="am-photo" type="url" placeholder="https://…" style="width:100%;padding:7px 10px;border:1px solid #dee2e6;border-radius:6px;font-size:0.85rem;">
+      </div>
+    </div>
+    <div id="am-error" style="color:#c1121f;font-size:0.8rem;margin-top:10px;"></div>
+    <div style="margin-top:18px;display:flex;gap:10px;">
+      <button onclick="submitAddMarker()" style="flex:1;padding:9px;background:#2d6a4f;color:#fff;border:none;border-radius:6px;font-size:0.88rem;cursor:pointer;font-weight:600;">Save Marker</button>
+      <button onclick="closeAddMarkerModal()" style="padding:9px 18px;background:#f8f9fa;border:1px solid #dee2e6;border-radius:6px;font-size:0.88rem;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- MARKER DETAIL MODAL -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <h3 id="modal-title">TOR-001</h3>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ADD SITE MODAL -->
+<div id="modal-add-site" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:10px;padding:24px;width:380px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;">Add New Site</h3>
+    <div style="margin-bottom:10px;"><label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:3px;">Site name</label><input type="text" id="modal-site-name" placeholder='e.g. "Pine Lily Park"' style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88rem;"></div>
+    <div style="margin-bottom:10px;"><label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:3px;">Location</label><input type="text" id="modal-site-location" placeholder="e.g. Palm Beach County, Florida" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88rem;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div><label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:3px;">First trail code</label><input type="text" id="modal-site-trail-code" maxlength="4" style="text-transform:uppercase;width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88rem;" placeholder="e.g. PLT"></div>
+      <div><label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:3px;">First trail name</label><input type="text" id="modal-site-trail-name" placeholder="e.g. Pine Lily Trail" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88rem;"></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button onclick="closeAddSiteModal()" style="padding:7px 16px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:0.85rem;">Cancel</button>
+      <button onclick="submitAddSite()" style="padding:7px 16px;border-radius:6px;border:none;background:var(--primary);color:#fff;cursor:pointer;font-size:0.85rem;font-weight:600;">+ Create Site</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TRAIL MODAL -->
+<div id="modal-add-trail" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:10px;padding:24px;width:340px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;">Add Trail</h3>
+    <input type="hidden" id="modal-trail-site-id">
+    <div style="margin-bottom:10px;"><label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:3px;">Trail code</label><input type="text" id="modal-trail-code" maxlength="4" style="text-transform:uppercase;width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88rem;" placeholder="e.g. EQT"></div>
+    <div style="margin-bottom:10px;"><label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:3px;">Trail name</label><input type="text" id="modal-trail-name" placeholder="e.g. Equestrian Trail" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88rem;"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button onclick="closeAddTrailModal()" style="padding:7px 16px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:0.85rem;">Cancel</button>
+      <button onclick="submitAddTrail()" style="padding:7px 16px;border-radius:6px;border:none;background:var(--primary);color:#fff;cursor:pointer;font-size:0.85rem;font-weight:600;">+ Add Trail</button>
+    </div>
+  </div>
+</div>
+</body>
+
+<script src="js/data.js"></script>
+<script src="js/helpers.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/inventory.js"></script>
+<script src="js/gismap.js"></script>
+<script src="js/workorders.js"></script>
+<script src="js/report.js"></script>
+<script src="js/sites.js"></script>
+<script src="js/modal.js"></script>
+<script src="js/import-export.js"></script>
+<script src="js/summary.js"></script>
+<script src="js/inspection.js"></script>
+<script src="js/scoreedit.js"></script>
+<script src="js/priority.js"></script>
+<script src="js/annualplan.js"></script>
+</body>
+</html>
