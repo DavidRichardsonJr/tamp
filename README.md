@@ -45,11 +45,7 @@ TAMP_project/
 │   ├── scoreedit.js      Bulk score editor
 │   ├── priority.js       Priority matrix
 │   └── annualplan.js     Annual maintenance plan
-└── docs/
-    ├── TUTORIAL.html     Full illustrated tutorial (open in browser)
-    └── README.docx       Project reference document (Word)
 ```
-
 ---
 
 ## Docs
@@ -70,4 +66,3 @@ TAMP_project/
 
 ---
 
-See `docs/README.docx` or `docs/TUTORIAL.html` for full documentation.
